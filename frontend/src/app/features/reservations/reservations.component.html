@@ -1,0 +1,146 @@
+<div class="min-h-[calc(100vh-4rem)] bg-gray-50 py-12">
+  <div class="container mx-auto px-4">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Mes réservations</h1>
+      <p class="text-gray-600 mt-2">Consultez et gérez vos locations</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex space-x-4 mb-8">
+      <button
+        (click)="setTab('active')"
+        [class.bg-primary-600]="activeTab() === 'active'"
+        [class.text-white]="activeTab() === 'active'"
+        [class.bg-white]="activeTab() !== 'active'"
+        [class.text-gray-700]="activeTab() !== 'active'"
+        class="px-6 py-3 rounded-lg font-medium transition-colors shadow-sm">
+        En cours ({{ activeRentals().length }})
+      </button>
+      <button
+        (click)="setTab('past')"
+        [class.bg-primary-600]="activeTab() === 'past'"
+        [class.text-white]="activeTab() === 'past'"
+        [class.bg-white]="activeTab() !== 'past'"
+        [class.text-gray-700]="activeTab() !== 'past'"
+        class="px-6 py-3 rounded-lg font-medium transition-colors shadow-sm">
+        Historique ({{ pastRentals().length }})
+      </button>
+    </div>
+
+    <!-- Loading -->
+    @if (isLoading()) {
+      <div class="card p-12 text-center">
+        <svg class="animate-spin h-10 w-10 text-primary-600 mx-auto mb-4" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+        </svg>
+        <p class="text-gray-600">Chargement de vos réservations...</p>
+      </div>
+    } @else if (displayedRentals().length === 0) {
+      <!-- Empty State -->
+      <div class="card p-12 text-center">
+        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+          </svg>
+        </div>
+        <h2 class="text-xl font-bold text-gray-900 mb-2">
+          {{ activeTab() === 'active' ? 'Aucune réservation en cours' : 'Aucun historique' }}
+        </h2>
+        <p class="text-gray-600 mb-6">
+          {{ activeTab() === 'active' ? 'Commencez par rechercher un véhicule' : 'Vos anciennes réservations apparaîtront ici' }}
+        </p>
+        @if (activeTab() === 'active') {
+          <a routerLink="/search" class="btn-primary">Rechercher un véhicule</a>
+        }
+      </div>
+    } @else {
+      <!-- Rentals List -->
+      <div class="grid gap-6">
+        @for (rental of displayedRentals(); track rental.id) {
+          <div class="card p-6">
+            <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+              <!-- Rental Info -->
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-4">
+                  <span class="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
+                    {{ getCategoryName(rental.catCar) }}
+                  </span>
+                  <span [class]="'px-3 py-1 rounded-full text-sm font-medium ' + getStatusClass(rental.status)">
+                    {{ getStatusLabel(rental.status) }}
+                  </span>
+                  <span class="text-gray-500 text-sm">#{{ rental.id }}</span>
+                </div>
+
+                <div class="grid sm:grid-cols-2 gap-4">
+                  <!-- Departure -->
+                  <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="text-sm text-gray-500">Départ</p>
+                      <p class="font-semibold text-gray-900">{{ rental.departureAgency.name }}</p>
+                      <p class="text-sm text-gray-600">{{ rental.departureAgency.city }}, {{ rental.departureAgency.country }}</p>
+                      <p class="text-sm text-gray-500">{{ rental.startDate | date:'dd/MM/yyyy HH:mm' }}</p>
+                    </div>
+                  </div>
+
+                  <!-- Return -->
+                  <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="text-sm text-gray-500">Retour</p>
+                      <p class="font-semibold text-gray-900">{{ rental.returnAgency.name }}</p>
+                      <p class="text-sm text-gray-600">{{ rental.returnAgency.city }}, {{ rental.returnAgency.country }}</p>
+                      <p class="text-sm text-gray-500">{{ rental.endDate | date:'dd/MM/yyyy HH:mm' }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Price & Actions -->
+              <div class="lg:text-right lg:border-l lg:pl-6 lg:ml-6">
+                <div class="mb-4">
+                  <p class="text-sm text-gray-500">Prix total</p>
+                  <p class="text-2xl font-bold text-gray-900">
+                    {{ rental.price / 100 | currency:'EUR':'symbol':'1.2-2':'fr' }}
+                  </p>
+                </div>
+
+                @if (canCancel(rental.status)) {
+                  <button
+                    (click)="cancelRental(rental.id)"
+                    [disabled]="cancellingId() === rental.id"
+                    class="btn-danger w-full lg:w-auto">
+                    @if (cancellingId() === rental.id) {
+                      Annulation...
+                    } @else {
+                      Annuler
+                    }
+                  </button>
+                }
+
+                @if (rental.status === 'CANCELLED' && rental.refundPercentage) {
+                  <p class="text-sm text-gray-500 mt-2">
+                    Remboursé à {{ rental.refundPercentage }}%
+                  </p>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

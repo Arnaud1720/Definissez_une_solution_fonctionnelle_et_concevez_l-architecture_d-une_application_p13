@@ -1,0 +1,145 @@
+<div class="min-h-[calc(100vh-4rem)] bg-gray-50 py-8">
+  <div class="container mx-auto px-4">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+      <div>
+        <a routerLink="/search" class="text-primary-600 hover:text-primary-800 flex items-center mb-2">
+          <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          Modifier la recherche
+        </a>
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
+          {{ offers().length }} offre{{ offers().length > 1 ? 's' : '' }} trouvée{{ offers().length > 1 ? 's' : '' }}
+        </h1>
+        @if (lastSearch()) {
+          <p class="text-gray-600 mt-1">
+            {{ lastSearch()?.departureCity }} → {{ lastSearch()?.returnCity }}
+          </p>
+        }
+      </div>
+
+      <div class="mt-4 md:mt-0 flex items-center space-x-4">
+        <label class="text-sm text-gray-600">Trier par :</label>
+        <select (change)="sortOffers($event)" class="input py-2 px-3 w-auto">
+          <option value="price-asc">Prix croissant</option>
+          <option value="price-desc">Prix décroissant</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    @if (errorMessage()) {
+      <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    @if (offers().length === 0) {
+      <!-- No Results -->
+      <div class="card p-12 text-center">
+        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <h2 class="text-xl font-bold text-gray-900 mb-2">Aucune offre disponible</h2>
+        <p class="text-gray-600 mb-6">Essayez de modifier vos critères de recherche</p>
+        <a routerLink="/search" class="btn-primary">Nouvelle recherche</a>
+      </div>
+    } @else {
+      <!-- Results Grid -->
+      <div class="grid gap-6">
+        @for (offer of sortedOffers; track offer.id) {
+          <div class="card p-6 hover:shadow-lg transition-shadow">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              <!-- Offer Info -->
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-4">
+                  <span class="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
+                    {{ getCategoryName(offer.catCar) }}
+                  </span>
+                  <span class="text-gray-500 text-sm">{{ offer.catCar }}</span>
+                </div>
+
+                <div class="grid sm:grid-cols-2 gap-4">
+                  <!-- Departure -->
+                  <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="text-sm text-gray-500">Départ</p>
+                      <p class="font-semibold text-gray-900">{{ offer.departureAgency.name }}</p>
+                      <p class="text-sm text-gray-600">{{ offer.departureAgency.city }}, {{ offer.departureAgency.country }}</p>
+                      <p class="text-sm text-gray-500">{{ offer.startDate | date:'dd/MM/yyyy HH:mm' }}</p>
+                    </div>
+                  </div>
+
+                  <!-- Return -->
+                  <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="text-sm text-gray-500">Retour</p>
+                      <p class="font-semibold text-gray-900">{{ offer.returnAgency.name }}</p>
+                      <p class="text-sm text-gray-600">{{ offer.returnAgency.city }}, {{ offer.returnAgency.country }}</p>
+                      <p class="text-sm text-gray-500">{{ offer.endDate | date:'dd/MM/yyyy HH:mm' }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Price & Action -->
+              <div class="lg:text-right lg:border-l lg:pl-6 lg:ml-6">
+                <div class="mb-4">
+                  <p class="text-sm text-gray-500">Prix total</p>
+                  <p class="text-3xl font-bold text-gray-900">
+                    {{ offer.price / 100 | currency:'EUR':'symbol':'1.2-2':'fr' }}
+                  </p>
+                </div>
+                <button
+                  (click)="bookOffer(offer)"
+                  [disabled]="paymentService.isProcessing()"
+                  class="btn-primary w-full lg:w-auto px-8">
+                  @if (paymentService.isProcessing() && selectedOfferId() === offer.id) {
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                    </svg>
+                    Redirection...
+                  } @else {
+                    <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                    </svg>
+                    Réserver et payer
+                  }
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Stripe Security Badge -->
+    <div class="mt-8 text-center text-gray-500 text-sm">
+      <div class="flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+        </svg>
+        Paiement sécurisé par Stripe
+      </div>
+    </div>
+  </div>
+</div>

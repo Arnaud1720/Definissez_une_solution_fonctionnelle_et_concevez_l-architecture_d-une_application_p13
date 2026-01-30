@@ -1,0 +1,50 @@
+<div class="min-h-[calc(100vh-4rem)] bg-gray-50 flex items-center justify-center py-12 px-4">
+  <div class="max-w-md w-full">
+    <div class="card p-8 text-center">
+      <!-- Success Icon -->
+      <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+        <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+
+      <h1 class="text-2xl font-bold text-gray-900 mb-2">Paiement réussi ! 🎉</h1>
+      <p class="text-gray-600 mb-6">
+        Votre réservation a été confirmée. Un email de confirmation avec les détails
+        de votre location vous a été envoyé.
+      </p>
+
+      <!-- Session ID (for reference) -->
+      @if (sessionId) {
+        <div class="bg-gray-50 rounded-lg p-4 mb-6">
+          <p class="text-sm text-gray-500">Référence de transaction</p>
+          <p class="font-mono text-sm text-gray-700 break-all">{{ sessionId }}</p>
+        </div>
+      }
+
+      <!-- Info Box -->
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-left">
+        <h3 class="font-semibold text-blue-900 mb-2">📋 Prochaines étapes</h3>
+        <ul class="text-sm text-blue-800 space-y-1">
+          <li>• Vérifiez votre boîte email pour la confirmation</li>
+          <li>• Présentez votre pièce d'identité à l'agence</li>
+          <li>• Ayez votre permis de conduire valide</li>
+        </ul>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex flex-col sm:flex-row gap-3">
+        <a routerLink="/reservations" class="btn-primary flex-1">
+          <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+          </svg>
+          Voir mes réservations
+        </a>
+        <a routerLink="/" class="btn-outline flex-1">
+          Retour à l'accueil
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
